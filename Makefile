@@ -17,7 +17,7 @@ help:
 
 install:
 	rm -rf $(FO_INSTALLPATH)/$(FO_CMDNAME)
-	cp $(PWD)/fileopener.sh $(FO_INSTALLPATH)/$(FO_CMDNAME)
+	ln -s $(PWD)/fileopener.sh $(FO_INSTALLPATH)/$(FO_CMDNAME)
 	chmod +x $(FO_INSTALLPATH)/$(FO_CMDNAME)
 	@echo ""
 	@echo "Install Completion. Usage: $(FO_CMDNAME) --help"
