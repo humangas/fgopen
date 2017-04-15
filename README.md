@@ -15,6 +15,22 @@ $ make install
 # Usage
 ```
 $ fo --help
+usage: fo [global options] [options] [path]
+version: 0.0.1
+
+options:
+    --grep, -g      Open in grep mode
+    --fasd, -f      Open from fasd files
+
+path:
+    nothing         If not specified, files under the current directory are targeted.
+    directory       If you specify a directory, files under that directory are targeted.
+    file            If you specify a file, simply open it.
+
+global options:
+   --help, -h       Show help
+   --version        Show version
+
 ```
 
 
