@@ -19,17 +19,23 @@ usage: fo [global options] [options] [path]
 version: 0.0.1
 
 options:
-    --grep, -g      Open in grep mode
-    --fasd, -f      Open from fasd files
+    --grep, -g       Open in grep mode
+    --fasd, -f       Open from fasd files
 
 path:
-    nothing         If not specified, files under the current directory are targeted.
-    directory       If you specify a directory, files under that directory are targeted.
-    file            If you specify a file, simply open it.
+    nothing          If not specified, files under the current directory are targeted.
+    directory        If you specify a directory, files under that directory are targeted.
+    file             If you specify a file, simply open it.
 
 global options:
-   --help, -h       Show help
-   --version        Show version
+    --help, -h       Show help
+    --version        Show version
+
+keybind:
+    ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it.
+    ctrl+f           Open the selected file in grep mode. 
+                     Pressing ctrl+f in grep mode puts you in file selection mode.
+    ctrl+q, ESC      Leave processing
 ```
 
 
