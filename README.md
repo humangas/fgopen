@@ -10,7 +10,7 @@ $ make install
 ```
 
 
-# Depencies software
+# Dependencies software
 - [fzf](https://github.com/junegunn/fzf)
 - [fasd](https://github.com/clvv/fasd)
 - [ag](https://github.com/ggreer/the_silver_searcher)
