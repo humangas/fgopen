@@ -15,16 +15,17 @@ echo "usage: $_FO_APPNAME [global options] [options] [path]
 version: $_FO_VERSION
 
 options:
-    --grep, -g    Open in grep mode
+    --grep, -g      Open in grep mode
+    --fasd, -f      Open from fasd files
 
 path:
-    nothing       If not specified, files under the current directory are targeted.
-    directory     If you specify a directory, files under that directory are targeted.
-    file          If you specify a file, simply open it.
+    nothing         If not specified, files under the current directory are targeted.
+    directory       If you specify a directory, files under that directory are targeted.
+    file            If you specify a file, simply open it.
 
 global options:
-   --help, -h     Show help
-   --version      Show version
+   --help, -h       Show help
+   --version        Show version
 "
 }
 
@@ -54,6 +55,8 @@ function _main() {
                     shift 1; spath=$1
                 fi
                 _grep "$spath"; exit $? ;;
+            '-f'|'--fasd')
+                _fasd; exit $? ;;
             -*) 
                 echo "Error $opt is no such option"
                 echo "--> more info with: $_FO_APPNAME --help"
@@ -95,34 +98,13 @@ function _grep() {
     )
 }
 
-function main() {
-    [[ ! -z "$_FO_FIND_PIPE_CMD" ]] && _FO_FIND_PIPE_CMD="| $_FO_FIND_PIPE_CMD"
+function _fasd() {
+    local f="$(fasd -Rfl "$1" | fzf -1 -0 --no-sort +m)"
+    [[ -z "$f" ]] && return 1
 
-    local spath=${1:-$PWD}
-    if [[ -f $spath ]]; then
-        isText $spath && vim $spath || open $spath
-        return
-    fi
-
-    local select
-    IFS=$'\n' select=($(eval find $spath $_FO_FIND_OPTIONS $_FO_FIND_PIPE_CMD \
-        | sed -e "s@$spath/@@" \
-        | fzf-tmux --multi --cycle \
-        --preview "less -R $spath/{}" \
-        --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
-        --expect=enter,ctrl-f \
-    ))
-
-    key=$(head -1 <<< "$select")
-    file=$(head -2 <<< "$select" | tail -1)
-    declare files="${select[@]:1}"
-
-    declare -a filesx
-    for f in $files; do
-        isText "$spath/$f" && filesx+=($f)
-    done
-
-    _filesearch $spath $key $((${#filesx[@]}))
+    isText "$f"
+    retval=$?
+    [[ $retval -eq 0 ]] && vim "$f" || open "$f"
 }
 
 function _filesearch() {
@@ -203,6 +185,36 @@ function _filesearch() {
             return
             ;;
     esac
+}
+
+function main() {
+    [[ ! -z "$_FO_FIND_PIPE_CMD" ]] && _FO_FIND_PIPE_CMD="| $_FO_FIND_PIPE_CMD"
+
+    local spath=${1:-$PWD}
+    if [[ -f $spath ]]; then
+        isText $spath && vim $spath || open $spath
+        return
+    fi
+
+    local select
+    IFS=$'\n' select=($(eval find $spath $_FO_FIND_OPTIONS $_FO_FIND_PIPE_CMD \
+        | sed -e "s@$spath/@@" \
+        | fzf-tmux --multi --cycle \
+        --preview "less -R $spath/{}" \
+        --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
+        --expect=enter,ctrl-f \
+    ))
+
+    key=$(head -1 <<< "$select")
+    file=$(head -2 <<< "$select" | tail -1)
+    declare files="${select[@]:1}"
+
+    declare -a filesx
+    for f in $files; do
+        isText "$spath/$f" && filesx+=($f)
+    done
+
+    _filesearch $spath $key $((${#filesx[@]}))
 }
 
 # main
