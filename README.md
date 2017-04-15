@@ -34,6 +34,7 @@ global options:
 keybind:
     ctrl+u           Page half Up
     ctrl+d           Page half Down
+    ctrl+a           Select all
     ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it.
     ctrl+f           Open the selected file in grep mode. 
                      Pressing ctrl+f in grep mode puts you in file selection mode.
