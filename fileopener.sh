@@ -2,6 +2,7 @@
 
 _FO_APPNAME="fo"
 _FO_VERSION="0.0.1"
+_FO_FZF_CMD="fzf-tmux"
 _FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 _FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
 _FO_GREP_CMD="ag"
@@ -83,7 +84,7 @@ function _grep() {
     (
         cd $spath
         local line=$(eval $_FO_GREP_CMD $_grep_options \
-            | fzf-tmux --tac \
+            | $_FO_FZF_CMD --tac \
                 --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                 --expect=ctrl-f)
         [[ -z $line ]] && main $spath && return
@@ -161,7 +162,7 @@ function _filesearch() {
             (
                 cd $spath
                 local line=$(eval $_FO_GREP_CMD $_grep_options \
-                    | fzf-tmux --tac \
+                    | $_FO_FZF_CMD --tac \
                         --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                         --expect=ctrl-f)
                 [[ -z $line ]] && main $spath && return
@@ -199,7 +200,7 @@ function main() {
     local select
     IFS=$'\n' select=($(eval find $spath $_FO_FIND_OPTIONS $_FO_FIND_PIPE_CMD \
         | sed -e "s@$spath/@@" \
-        | fzf-tmux --multi --cycle \
+        | $_FO_FZF_CMD --multi --cycle \
         --preview "less -R $spath/{}" \
         --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
         --expect=enter,ctrl-f \
