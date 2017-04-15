@@ -7,7 +7,6 @@ _FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 _FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
 _FO_GREP_CMD="ag"
 _FO_GREP_OPTIONS="--hidden --ignore .git/ . "
-#_FO_GREP_OPTIONS="--hidden --ignore .git/ -v '^\n' _FILE"
 _FO_CONFIRM_OPEN_FILE_CNT=5
 
 
@@ -34,18 +33,7 @@ function _version(){
     echo "$_FO_APPNAME $_FO_VERSION"
 }
 
-function isText() {
-    local filepath="$1"
-    [[ -z $filepath ]] && return 1
-
-    local type=$(file "$filepath" | cut -d: -f2 | grep 'text')
-    [[ -z $type ]] && return 1
-    [[ ${#type} -ne 0 ]] && return 0
-
-    return 1
-}
-
-function _main() {
+function main() {
     local spath
     for opt in "$@"; do
         case "$opt" in
@@ -73,122 +61,11 @@ function _main() {
         esac
     done
 
-    main "$@"
+    _filefilter "$@"
     exit $?
 }
 
-function _grep() {
-    local spath=${1:-$PWD}
-    local _grep_options="$_FO_GREP_OPTIONS $f"
-
-    (
-        cd $spath
-        local line=$(eval $_FO_GREP_CMD $_grep_options \
-            | $_FO_FZF_CMD --tac \
-                --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
-                --expect=ctrl-f)
-        [[ -z $line ]] && main $spath && return
-        [[ $line =~ ^ctrl-f\s*.* ]] && main $spath && return
-
-        local file
-        local num
-        file=$(printf $line | cut -d: -f1)
-        num=$(printf $line | cut -d: -f2)
-        
-        vim -c $num $spath/$file
-    )
-}
-
-function _fasd() {
-    local f="$(fasd -Rfl "$1" | fzf -1 -0 --no-sort +m)"
-    [[ -z "$f" ]] && return 1
-
-    isText "$f"
-    retval=$?
-    [[ $retval -eq 0 ]] && vim "$f" || open "$f"
-}
-
-function _filesearch() {
-    local spath=$1
-    local key=$2
-    local scnt=$3
-
-    case $key in
-        enter)
-            [[ -z ${files[@]} ]] && return
-
-            local _open_file_cnt=$((${#select[@]}-1))
-            if [[ $_open_file_cnt -gt $_FO_CONFIRM_OPEN_FILE_CNT ]]; then
-                echo -n "Really open $_open_file_cnt files? [Y/n]: "
-                read ans
-                case $ans in
-                    'Y'|'yes') ;;
-                    *) main $spath && return ;;
-                esac
-            fi
-
-            declare -a vimfiles
-            declare -a etcfiles
-            echo "Open the following file..."
-
-            for f in $files; do
-                echo "$spath/$f"
-                isText $spath/${f}
-                retval=$?
-                [[ $retval -eq 0 ]] && vimfiles+=($spath/${f}) || etcfiles+=($spath/${f})
-            done
-
-            [[ $((${#etcfiles[@]})) -ge 1 ]] && open ${etcfiles[@]}
-            [[ $((${#vimfiles[@]})) -ge 1 ]] && vim ${vimfiles[@]}
-            ;;
-
-        ctrl-f)
-            [[ -z ${filesx[@]} ]] && main $spath && return
-
-            declare -a _target_files
-            for f in $files; do
-                _target_files+=($f)
-                _target_files+=("|")
-            done
-
-            local _grep_options
-            if [[ $scnt -gt 1 ]]; then
-                local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
-                _grep_options="-G $ag_gop $_FO_GREP_OPTIONS"
-            else
-                _grep_options="$_FO_GREP_OPTIONS $f"
-            fi
-
-            (
-                cd $spath
-                local line=$(eval $_FO_GREP_CMD $_grep_options \
-                    | $_FO_FZF_CMD --tac \
-                        --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
-                        --expect=ctrl-f)
-                [[ -z $line ]] && main $spath && return
-                [[ $line =~ ^ctrl-f\s*.* ]] && main $spath && return
-
-                local file
-                local num
-                if [[ $scnt -gt 1 ]]; then
-                    file=$(printf $line | cut -d: -f1)
-                    num=$(printf $line | cut -d: -f2)
-                else
-                    file=${filesx[@]}
-                    num=$(printf $line | cut -d: -f1)
-                fi
-
-                vim -c $num $spath/$file
-            )
-            ;;
-
-        *)
-            return
-            ;;
-    esac
-}
-
-function main() {
+function _filefilter() {
     [[ ! -z "$_FO_FIND_PIPE_CMD" ]] && _FO_FIND_PIPE_CMD="| $_FO_FIND_PIPE_CMD"
 
     local spath=${1:-$PWD}
@@ -215,8 +92,130 @@ function main() {
         isText "$spath/$f" && filesx+=($f)
     done
 
-    _filesearch $spath $key $((${#filesx[@]}))
+    _fileaction $spath $key $((${#filesx[@]}))
+}
+
+function _fileaction() {
+    local spath=$1
+    local key=$2
+    local scnt=$3
+
+    case $key in
+        enter)
+            [[ -z ${files[@]} ]] && return
+
+            local _open_file_cnt=$((${#select[@]}-1))
+            if [[ $_open_file_cnt -gt $_FO_CONFIRM_OPEN_FILE_CNT ]]; then
+                echo -n "Really open $_open_file_cnt files? [Y/n]: "
+                read ans
+                case $ans in
+                    'Y'|'yes') ;;
+                    *) _filefilter $spath && return ;;
+                esac
+            fi
+
+            declare -a vimfiles
+            declare -a etcfiles
+            echo "Open the following file..."
+
+            for f in $files; do
+                echo "$spath/$f"
+                isText $spath/${f}
+                retval=$?
+                [[ $retval -eq 0 ]] && vimfiles+=($spath/${f}) || etcfiles+=($spath/${f})
+            done
+
+            [[ $((${#etcfiles[@]})) -ge 1 ]] && open ${etcfiles[@]}
+            [[ $((${#vimfiles[@]})) -ge 1 ]] && vim ${vimfiles[@]}
+            ;;
+
+        ctrl-f)
+            [[ -z ${filesx[@]} ]] && _filefilter $spath && return
+
+            declare -a _target_files
+            for f in $files; do
+                _target_files+=($f)
+                _target_files+=("|")
+            done
+
+            local _grep_options
+            if [[ $scnt -gt 1 ]]; then
+                local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
+                _grep_options="-G $ag_gop $_FO_GREP_OPTIONS"
+            else
+                _grep_options="$_FO_GREP_OPTIONS $f"
+            fi
+
+            (
+                cd $spath
+                local line=$(eval $_FO_GREP_CMD $_grep_options \
+                    | $_FO_FZF_CMD --tac \
+                        --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
+                        --expect=ctrl-f)
+                [[ -z $line ]] && _filefilter $spath && return
+                [[ $line =~ ^ctrl-f\s*.* ]] && _filefilter $spath && return
+
+                local file
+                local num
+                if [[ $scnt -gt 1 ]]; then
+                    file=$(printf $line | cut -d: -f1)
+                    num=$(printf $line | cut -d: -f2)
+                else
+                    file=${filesx[@]}
+                    num=$(printf $line | cut -d: -f1)
+                fi
+
+                vim -c $num $spath/$file
+            )
+            ;;
+
+        *)
+            return
+            ;;
+    esac
+}
+
+function _grep() {
+    local spath=${1:-$PWD}
+    local _grep_options="$_FO_GREP_OPTIONS $f"
+
+    (
+        cd $spath
+        local line=$(eval $_FO_GREP_CMD $_grep_options \
+            | $_FO_FZF_CMD --tac \
+                --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
+                --expect=ctrl-f)
+        [[ -z $line ]] && _filefilter $spath && return
+        [[ $line =~ ^ctrl-f\s*.* ]] && _filefilter $spath && return
+
+        local file
+        local num
+        file=$(printf $line | cut -d: -f1)
+        num=$(printf $line | cut -d: -f2)
+        
+        vim -c $num $spath/$file
+    )
+}
+
+function _fasd() {
+    local f="$(fasd -Rfl "$1" | fzf -1 -0 --no-sort +m)"
+    [[ -z "$f" ]] && return 1
+
+    isText "$f"
+    retval=$?
+    [[ $retval -eq 0 ]] && vim "$f" || open "$f"
+}
+
+function isText() {
+    local filepath="$1"
+    [[ -z $filepath ]] && return 1
+
+    local type=$(file "$filepath" | cut -d: -f2 | grep 'text')
+    [[ -z $type ]] && return 1
+    [[ ${#type} -ne 0 ]] && return 0
+
+    return 1
 }
 
 # main
-_main "$@"
+main "$@"
