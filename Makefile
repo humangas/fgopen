@@ -11,8 +11,8 @@ help:
 	@echo "Usage: make [target] [args]"
 	@echo ""
 	@echo "target:"
-	@echo " - install [CMDNAME=<cmd>]:   Install fileopener.sh as a <cmd> command. The default is the name 'fo'."
-	@echo " - update  [CMDNAME=<cmd>]:   After git pull, execute the install command."
+	@echo " - install:   Install fileopener.sh as a $(FO_CMDNAME) command."
+	@echo " - update:    After git pull, execute the install command."
 	@echo ""
 
 install:
