@@ -30,7 +30,6 @@ path:
 global options:
    --help, -h       Show help
    --version        Show version
-
 ```
 
 
