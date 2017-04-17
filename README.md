@@ -43,11 +43,18 @@ keybind:
 
 
 ## Dependencies software
+- bash: >= 4.0.0
 - [fzf](https://github.com/junegunn/fzf)
 - [fasd](https://github.com/clvv/fasd)
 - [the_silver_searcher(ag)](https://github.com/ggreer/the_silver_searcher)
 
 ### Installation
+#### bash
+```
+$ brew install bash
+$ sudo echo '/usr/local/bin/bash' >> /etc/shells
+```
+
 #### [fzf](https://github.com/junegunn/fzf#using-homebrew)
 ```
 $ brew install fzf
