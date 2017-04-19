@@ -39,7 +39,7 @@ keybind:
 }
 
 function _version(){
-    echo "$_FO_APPNAME $_FO_VERSION"
+    echo "$FO_APPNAME $FO_VERSION"
 }
 
 function main() {
@@ -57,7 +57,7 @@ function main() {
                 _fasd; exit $? ;;
             -*) 
                 echo "Error $opt is no such option"
-                echo "--> more info with: $_FO_APPNAME --help"
+                echo "--> more info with: $FO_APPNAME --help"
                 exit 1
                 ;;
             *)
@@ -75,7 +75,7 @@ function main() {
 }
 
 function _filefilter() {
-    [[ ! -z "$_FO_FIND_PIPE_CMD" ]] && _FO_FIND_PIPE_CMD="| $_FO_FIND_PIPE_CMD"
+    [[ ! -z "$FO_FIND_PIPE_CMD" ]] && FO_FIND_PIPE_CMD="| $FO_FIND_PIPE_CMD"
 
     local spath=${1:-$PWD}
     if [[ -f $spath ]]; then
@@ -84,9 +84,9 @@ function _filefilter() {
     fi
 
     local select
-    IFS=$'\n' select=($(eval find $spath $_FO_FIND_OPTIONS $_FO_FIND_PIPE_CMD \
+    IFS=$'\n' select=($(eval find $spath $FO_FIND_OPTIONS $FO_FIND_PIPE_CMD \
         | sed -e "s@$spath/@@" \
-        | $_FO_FZF_CMD --multi --cycle \
+        | $FO_FZF_CMD --multi --cycle \
         --preview "less -R $spath/{}" \
         --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
         --expect=enter,ctrl-f \
@@ -114,7 +114,7 @@ function _fileaction() {
             [[ -z ${files[@]} ]] && return
 
             local _open_file_cnt=$((${#select[@]}-1))
-            if [[ $_open_file_cnt -gt $_FO_CONFIRM_OPEN_FILE_CNT ]]; then
+            if [[ $_open_file_cnt -gt $FO_CONFIRM_OPEN_FILE_CNT ]]; then
                 echo -n "Really open $_open_file_cnt files? [Y/n]: "
                 read ans
                 case $ans in
@@ -150,15 +150,15 @@ function _fileaction() {
             local _grep_options
             if [[ $scnt -gt 1 ]]; then
                 local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
-                _grep_options="-G $ag_gop $_FO_GREP_OPTIONS"
+                _grep_options="-G $ag_gop $FO_GREP_OPTIONS"
             else
-                _grep_options="$_FO_GREP_OPTIONS $f"
+                _grep_options="$FO_GREP_OPTIONS $f"
             fi
 
             (
                 cd $spath
-                local line=$(eval $_FO_GREP_CMD $_grep_options \
-                    | $_FO_FZF_CMD --tac \
+                local line=$(eval $FO_GREP_CMD $_grep_options \
+                    | $FO_FZF_CMD --tac \
                         --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                         --expect=ctrl-f)
                 [[ -z $line ]] && _filefilter $spath && return
@@ -186,12 +186,12 @@ function _fileaction() {
 
 function _grep() {
     local spath=${1:-$PWD}
-    local _grep_options="$_FO_GREP_OPTIONS $f"
+    local _grep_options="$FO_GREP_OPTIONS $f"
 
     (
         cd $spath
-        local line=$(eval $_FO_GREP_CMD $_grep_options \
-            | $_FO_FZF_CMD --tac \
+        local line=$(eval $FO_GREP_CMD $_grep_options \
+            | $FO_FZF_CMD --tac \
                 --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                 --expect=ctrl-f)
         [[ -z $line ]] && _filefilter $spath && return
