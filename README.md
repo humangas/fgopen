@@ -16,7 +16,7 @@ $ make install
 ```
 $ fo --help
 usage: fo [global options] [options] [path]
-version: 0.0.1
+version: 0.1.0
 
 options:
     --grep, -g       Open in grep mode

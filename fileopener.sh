@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-_FO_APPNAME="fo"
-_FO_VERSION="0.0.1"
-_FO_FZF_CMD="fzf-tmux"
-_FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
-_FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
-_FO_GREP_CMD="ag"
-_FO_GREP_OPTIONS="--hidden --ignore .git/ . "
-_FO_CONFIRM_OPEN_FILE_CNT=5
+FO_APPNAME="fo"
+FO_VERSION="0.1.0"
+FO_FZF_CMD="fzf-tmux"
+FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
+FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
+FO_GREP_CMD="ag"
+FO_GREP_OPTIONS="--hidden --ignore .git/ . "
+FO_CONFIRM_OPEN_FILE_CNT=5
 
 
 function _usage() {
-echo "usage: $_FO_APPNAME [global options] [options] [path]
-version: $_FO_VERSION
+echo "usage: $FO_APPNAME [global options] [options] [path]
+version: $FO_VERSION
 
 options:
     --grep, -g       Open in grep mode
