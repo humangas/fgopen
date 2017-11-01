@@ -1,5 +1,5 @@
 FO_CMDNAME := fo
-FO_INSTALLPATH := /usr/local/bin
+FO_INSTALLPATH := ~/bin
 
 .DEFAULT_GOAL := help
 
