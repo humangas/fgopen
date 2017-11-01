@@ -15,23 +15,22 @@ $ make install
 ## Usage
 ```
 $ fo --help
-usage: fo [global options] [options] [path]
-version: 0.1.0
+Usage: fo [global options] [options] [path]
+version: 0.2.0
 
-options:
+Options:
     --grep, -g       Open in grep mode
-    --fasd, -f       Open from fasd files
 
-path:
-    nothing          If not specified, files under the current directory are targeted.
-    directory        If you specify a directory, files under that directory are targeted.
-    file             If you specify a file, simply open it.
+Path:
+    {nothing}        If not specified, files under the current directory are targeted.
+    {directory}      If you specify a directory, files under that directory are targeted.
+    {file}           If you specify a file, simply open it.
 
-global options:
+Global Options:
     --help, -h       Show help
     --version        Show version
 
-keybind:
+Keybind:
     ctrl+u           Page half Up
     ctrl+d           Page half Down
     ctrl+a           Select all
@@ -59,12 +58,6 @@ $ sudo echo '/usr/local/bin/bash' >> /etc/shells
 ```
 $ brew install fzf
 /usr/local/opt/fzf/install
-```
-
-#### [fasd](https://github.com/clvv/fasd#install)
-```
-$ brew install fasd
-echo 'eval "$(fasd --init auto)"' >> ~/.zshrc
 ```
 
 #### [the_silver_searcher(ag)](https://github.com/ggreer/the_silver_searcher#macos)
