@@ -18,9 +18,9 @@ Options:
     --grep, -g       Open in grep mode
 
 Path:
-    nothing          If not specified, files under the current directory are targeted.
-    directory        If you specify a directory, files under that directory are targeted.
-    file             If you specify a file, simply open it.
+    {nothing}        If not specified, files under the current directory are targeted.
+    {directory}      If you specify a directory, files under that directory are targeted.
+    {file}           If you specify a file, simply open it.
 
 Global Options:
     --help, -h       Show help
@@ -29,10 +29,9 @@ Global Options:
 Keybind:
     ctrl+u           Page half Up
     ctrl+d           Page half Down
+    ctrl+f           Switch grep mode and file selection mode
+    ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it
     ctrl+a           Select all
-    ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it.
-    ctrl+f           Open the selected file in grep mode. 
-                     Pressing ctrl+f in grep mode puts you in file selection mode.
     ctrl+q, ESC      Leave processing
 "
 }
