@@ -16,7 +16,7 @@ $ make install
 ```
 $ fo --help
 Usage: fo [global options] [options] [path]
-version: 0.2.0
+version: 0.2.1
 
 Options:
     --grep, -g       Open in grep mode
@@ -33,11 +33,11 @@ Global Options:
 Keybind:
     ctrl+u           Page half Up
     ctrl+d           Page half Down
+    ctrl+f           Switch grep mode and file selection mode
+    ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it
     ctrl+a           Select all
-    ctrl+i, TAB      Select multiple files. Press ctrl+i or shift+TAB to deselect it.
-    ctrl+f           Open the selected file in grep mode. 
-                     Pressing ctrl+f in grep mode puts you in file selection mode.
     ctrl+q, ESC      Leave processing
+
 ```
 
 
