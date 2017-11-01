@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FO_APPNAME="fo"
-FO_VERSION="0.1.0"
+FO_VERSION="0.2.0"
 FO_FZF_CMD="fzf-tmux"
 FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
@@ -11,23 +11,22 @@ FO_CONFIRM_OPEN_FILE_CNT=5
 
 
 function _usage() {
-echo "usage: $FO_APPNAME [global options] [options] [path]
+echo "Usage: $FO_APPNAME [global options] [options] [path]
 version: $FO_VERSION
 
-options:
+Options:
     --grep, -g       Open in grep mode
-    --fasd, -f       Open from fasd files
 
-path:
+Path:
     nothing          If not specified, files under the current directory are targeted.
     directory        If you specify a directory, files under that directory are targeted.
     file             If you specify a file, simply open it.
 
-global options:
+Global Options:
     --help, -h       Show help
     --version        Show version
 
-keybind:
+Keybind:
     ctrl+u           Page half Up
     ctrl+d           Page half Down
     ctrl+a           Select all
@@ -53,8 +52,6 @@ function main() {
                     shift 1; spath=$1
                 fi
                 _grep "$spath"; exit $? ;;
-            '-f'|'--fasd')
-                _fasd; exit $? ;;
             -*) 
                 echo "Error $opt is no such option"
                 echo "--> more info with: $FO_APPNAME --help"
@@ -204,15 +201,6 @@ function _grep() {
         
         vim -c $num $spath/$file
     )
-}
-
-function _fasd() {
-    local f="$(fasd -Rfl "$1" | fzf -1 -0 --no-sort +m)"
-    [[ -z "$f" ]] && return 1
-
-    isText "$f"
-    retval=$?
-    [[ $retval -eq 0 ]] && vim "$f" || open "$f"
 }
 
 function isText() {
