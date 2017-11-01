@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FO_APPNAME="fo"
-FO_VERSION="0.2.0"
+FO_VERSION="0.2.1"
 FO_FZF_CMD="fzf-tmux"
 FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
@@ -157,7 +157,7 @@ function _fileaction() {
                     | $FO_FZF_CMD --tac \
                         --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                         --expect=ctrl-f)
-                [[ -z $line ]] && _filefilter $spath && return
+                [[ -z $line ]] && return 
                 [[ $line =~ ^ctrl-f\s*.* ]] && _filefilter $spath && return
 
                 local file
@@ -190,7 +190,7 @@ function _grep() {
             | $FO_FZF_CMD --tac \
                 --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                 --expect=ctrl-f)
-        [[ -z $line ]] && _filefilter $spath && return
+        [[ -z $line ]] && return
         [[ $line =~ ^ctrl-f\s*.* ]] && _filefilter $spath && return
 
         local file
