@@ -11,20 +11,11 @@ FO_CONFIRM_OPEN_FILE_CNT=5
 
 
 function _usage() {
-echo "Usage: $FO_APPNAME [global options] [options] [path]
-version: $FO_VERSION
+echo "Usage: $FO_APPNAME [--version] [--help] [options] [path]
+Version: $FO_VERSION
 
 Options:
     --grep, -g       Open in grep mode
-
-Path:
-    {nothing}        If not specified, files under the current directory are targeted.
-    {directory}      If you specify a directory, files under that directory are targeted.
-    {file}           If you specify a file, simply open it.
-
-Global Options:
-    --help, -h       Show help
-    --version        Show version
 
 Keybind:
     ctrl+u           Page half Up
@@ -75,7 +66,8 @@ function _filefilter() {
 
     local spath=${1:-$PWD}
     if [[ -f $spath ]]; then
-        isText $spath && vim $spath || open $spath
+        f="$(basename $spath)"
+        _grep "$(dirname $spath)"
         return
     fi
 
@@ -147,31 +139,9 @@ function _fileaction() {
             if [[ $scnt -gt 1 ]]; then
                 local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
                 _grep_options="-G $ag_gop $FO_GREP_OPTIONS"
-            else
-                _grep_options="$FO_GREP_OPTIONS $f"
             fi
 
-            (
-                cd $spath
-                local line=$(eval $FO_GREP_CMD $_grep_options \
-                    | $FO_FZF_CMD --tac \
-                        --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
-                        --expect=ctrl-f)
-                [[ -z $line ]] && return 
-                [[ $line =~ ^ctrl-f\s*.* ]] && _filefilter $spath && return
-
-                local file
-                local num
-                if [[ $scnt -gt 1 ]]; then
-                    file=$(printf $line | cut -d: -f1)
-                    num=$(printf $line | cut -d: -f2)
-                else
-                    file=${filesx[@]}
-                    num=$(printf $line | cut -d: -f1)
-                fi
-
-                vim -c $num $spath/$file
-            )
+            _grep "$spath" $_grep_options
             ;;
 
         *)
@@ -182,7 +152,7 @@ function _fileaction() {
 
 function _grep() {
     local spath=${1:-$PWD}
-    local _grep_options="$FO_GREP_OPTIONS $f"
+    local _grep_options=${2:-$FO_GREP_OPTIONS $f}
 
     (
         cd $spath
@@ -197,6 +167,10 @@ function _grep() {
         local num
         file=$(printf $line | cut -d: -f1)
         num=$(printf $line | cut -d: -f2)
+        if expr "$file" : '[0-9]*' > /dev/null ; then
+            num=$file
+            file=$f
+        fi
         
         vim -c $num $spath/$file
     )
