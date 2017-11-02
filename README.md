@@ -1,34 +1,25 @@
-# fileopener
+# findgrep
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![OS macOS](https://img.shields.io/badge/OS-macOS-blue.svg)](OS)  
-"fileopener" is a convenient command line tool to open files using various filters.
+"findgrep" is a cli tool that uses find, grep(ag), fzf to quickly locate files.
 
 
 ## Installation
 ```
-$ git clone https://github.com/humangas/fileopener.git
-$ cd fileopener
+$ git clone https://github.com/humangas/findgrep.git
+$ cd findgrep
 $ make install
 ```
 
 
 ## Usage
 ```
-$ fo --help
-Usage: fo [global options] [options] [path]
-version: 0.2.1
+$ fing --help
+Usage: fing [--version] [--help] [options] [path]
+Version: 0.2.1
 
 Options:
     --grep, -g       Open in grep mode
-
-Path:
-    {nothing}        If not specified, files under the current directory are targeted.
-    {directory}      If you specify a directory, files under that directory are targeted.
-    {file}           If you specify a file, simply open it.
-
-Global Options:
-    --help, -h       Show help
-    --version        Show version
 
 Keybind:
     ctrl+u           Page half Up
@@ -44,7 +35,6 @@ Keybind:
 ## Dependencies software
 - bash: >= 4.0.0
 - [fzf](https://github.com/junegunn/fzf)
-- [fasd](https://github.com/clvv/fasd)
 - [the_silver_searcher(ag)](https://github.com/ggreer/the_silver_searcher)
 
 ### Installation

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-FO_APPNAME="fo"
-FO_VERSION="0.2.1"
-FO_FZF_CMD="fzf-tmux"
-FO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
-FO_FIND_PIPE_CMD="" #e.g. egrep \.go 
-FO_GREP_CMD="ag"
-FO_GREP_OPTIONS="--hidden --ignore .git/ . "
-FO_CONFIRM_OPEN_FILE_CNT=5
+FING_APPNAME="fing"
+FING_VERSION="0.3.0"
+FING_FZF_CMD="fzf-tmux"
+FING_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
+FING_FIND_PIPE_CMD="" #e.g. egrep \.go 
+FING_GREP_CMD="ag"
+FING_GREP_OPTIONS="--hidden --ignore .git/ . "
+FING_CONFIRM_OPEN_FILE_CNT=5
 
 
 function _usage() {
-echo "Usage: $FO_APPNAME [--version] [--help] [options] [path]
-Version: $FO_VERSION
+echo "Usage: $FING_APPNAME [--version] [--help] [options] [path]
+Version: $FING_VERSION
 
 Options:
     --grep, -g       Open in grep mode
@@ -28,7 +28,7 @@ Keybind:
 }
 
 function _version(){
-    echo "$FO_APPNAME $FO_VERSION"
+    echo "$FING_APPNAME $FING_VERSION"
 }
 
 function main() {
@@ -44,7 +44,7 @@ function main() {
                 _grep "$spath"; exit $? ;;
             -*) 
                 echo "Error $opt is no such option"
-                echo "--> more info with: $FO_APPNAME --help"
+                echo "--> more info with: $FING_APPNAME --help"
                 exit 1
                 ;;
             *)
@@ -62,7 +62,7 @@ function main() {
 }
 
 function _filefilter() {
-    [[ ! -z "$FO_FIND_PIPE_CMD" ]] && FO_FIND_PIPE_CMD="| $FO_FIND_PIPE_CMD"
+    [[ ! -z "$FING_FIND_PIPE_CMD" ]] && FING_FIND_PIPE_CMD="| $FING_FIND_PIPE_CMD"
 
     local spath=${1:-$PWD}
     if [[ -f $spath ]]; then
@@ -72,9 +72,9 @@ function _filefilter() {
     fi
 
     local select
-    IFS=$'\n' select=($(eval find $spath $FO_FIND_OPTIONS $FO_FIND_PIPE_CMD \
+    IFS=$'\n' select=($(eval find $spath $FING_FIND_OPTIONS $FING_FIND_PIPE_CMD \
         | sed -e "s@$spath/@@" \
-        | $FO_FZF_CMD --multi --cycle \
+        | $FING_FZF_CMD --multi --cycle \
         --preview "less -R $spath/{}" \
         --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
         --expect=enter,ctrl-f \
@@ -102,7 +102,7 @@ function _fileaction() {
             [[ -z ${files[@]} ]] && return
 
             local _open_file_cnt=$((${#select[@]}-1))
-            if [[ $_open_file_cnt -gt $FO_CONFIRM_OPEN_FILE_CNT ]]; then
+            if [[ $_open_file_cnt -gt $FING_CONFIRM_OPEN_FILE_CNT ]]; then
                 echo -n "Really open $_open_file_cnt files? [Y/n]: "
                 read ans
                 case $ans in
@@ -138,7 +138,7 @@ function _fileaction() {
             local _grep_options
             if [[ $scnt -gt 1 ]]; then
                 local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
-                _grep_options="-G $ag_gop $FO_GREP_OPTIONS"
+                _grep_options="-G $ag_gop $FING_GREP_OPTIONS"
             fi
 
             _grep "$spath" $_grep_options
@@ -152,12 +152,12 @@ function _fileaction() {
 
 function _grep() {
     local spath=${1:-$PWD}
-    local _grep_options=${2:-$FO_GREP_OPTIONS $f}
+    local _grep_options=${2:-$FING_GREP_OPTIONS $f}
 
     (
         cd $spath
-        local line=$(eval $FO_GREP_CMD $_grep_options \
-            | $FO_FZF_CMD --tac \
+        local line=$(eval $FING_GREP_CMD $_grep_options \
+            | $FING_FZF_CMD --tac \
                 --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                 --expect=ctrl-f)
         [[ -z $line ]] && return

@@ -1,5 +1,5 @@
-FO_CMDNAME := fo
-FO_INSTALLPATH := ~/bin
+FING_CMDNAME := fing
+FING_INSTALLPATH := ~/bin
 
 .DEFAULT_GOAL := help
 
@@ -11,16 +11,16 @@ help:
 	@echo "Usage: make [target] [args]"
 	@echo ""
 	@echo "target:"
-	@echo " - install:   Install fileopener.sh as a $(FO_CMDNAME) command."
+	@echo " - install:   Install findgrep.sh as a $(FING_CMDNAME) command."
 	@echo " - update:    After git pull, execute the install command."
 	@echo ""
 
 install:
-	rm -rf $(FO_INSTALLPATH)/$(FO_CMDNAME)
-	cp $(PWD)/fileopener.sh $(FO_INSTALLPATH)/$(FO_CMDNAME)
-	chmod +x $(FO_INSTALLPATH)/$(FO_CMDNAME)
+	rm -rf $(FING_INSTALLPATH)/$(FING_CMDNAME)
+	cp $(PWD)/findgrep.sh $(FING_INSTALLPATH)/$(FING_CMDNAME)
+	chmod +x $(FING_INSTALLPATH)/$(FING_CMDNAME)
 	@echo ""
-	@echo "Install Completion. Usage: $(FO_CMDNAME) --help"
+	@echo "Install Completion. Usage: $(FING_CMDNAME) --help"
 
 update:
 	git pull origin master
