@@ -107,7 +107,7 @@ function _fileaction() {
                 read ans
                 case $ans in
                     'Y'|'yes') ;;
-                    *) _filefilter $spath && return ;;
+                    *) return ;;
                 esac
             fi
 
