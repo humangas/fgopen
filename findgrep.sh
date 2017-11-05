@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FING_APPNAME="fing"
-FING_VERSION="0.3.1"
+FING_VERSION="0.4.0"
 FING_FZF_CMD="fzf-tmux"
 FING_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 FING_FIND_PIPE_CMD="" #e.g. egrep \.go 
@@ -16,6 +16,7 @@ Version: $FING_VERSION
 
 Options:
     --grep, -g       Open in grep mode
+    --open, -o       Open in vim (no-text is open in related applications)
 
 Keybind:
     ctrl+u           Page half Up
@@ -47,12 +48,14 @@ function _options() {
                     help) _usage ;;
                     version) _version ;;
                     grep) GETOPTS_G=1 ;;
+                    open) GETOPTS_O=1 ;;
                     *) _error_options "--$OPTARG" ;;
                 esac
                 ;;
             h) _usage ;;
             v) _version ;;
             g) GETOPTS_G=1 ;;
+            o) GETOPTS_O=1 ;;
             *) _error_options "-$OPTARG" ;;
         esac
     done   
@@ -106,7 +109,7 @@ function _fileaction() {
             [[ -z ${files[@]} ]] && return
 
             local _open_file_cnt=$((${#select[@]}-1))
-            if [[ $_open_file_cnt -gt $FING_CONFIRM_OPEN_FILE_CNT ]]; then
+            if [[ $_open_file_cnt -gt $FING_CONFIRM_OPEN_FILE_CNT && $GETOPTS_O ]]; then
                 echo -n "Really open $_open_file_cnt files? [Y/n]: "
                 read ans
                 case $ans in
@@ -117,7 +120,7 @@ function _fileaction() {
 
             declare -a vimfiles
             declare -a etcfiles
-            echo "Open the following file..."
+            [[ "$GETOPTS_O" ]] && echo "Open the following file..."
 
             for f in $files; do
                 echo "$spath/$f"
@@ -126,8 +129,10 @@ function _fileaction() {
                 [[ $retval -eq 0 ]] && vimfiles+=($spath/${f}) || etcfiles+=($spath/${f})
             done
 
-            [[ $((${#etcfiles[@]})) -ge 1 ]] && open ${etcfiles[@]}
-            [[ $((${#vimfiles[@]})) -ge 1 ]] && vim ${vimfiles[@]}
+            if [[ "$GETOPTS_O" ]]; then
+                [[ $((${#etcfiles[@]})) -ge 1 ]] && open ${etcfiles[@]}
+                [[ $((${#vimfiles[@]})) -ge 1 ]] && vim ${vimfiles[@]}
+            fi
             ;;
 
         ctrl-f)
@@ -176,7 +181,11 @@ function _grep() {
             file=$f
         fi
         
-        vim -c $num $spath/$file
+        if [[ "$GETOPTS_O" ]]; then
+            vim -c $num $spath/$file
+        else
+            echo $line
+        fi
     )
 }
 
