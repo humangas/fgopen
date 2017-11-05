@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FING_APPNAME="fing"
-FING_VERSION="0.3.0"
+FING_VERSION="0.3.1"
 FING_FZF_CMD="fzf-tmux"
 FING_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
 FING_FIND_PIPE_CMD="" #e.g. egrep \.go 
@@ -25,40 +25,44 @@ Keybind:
     ctrl+a           Select all
     ctrl+q, ESC      Leave processing
 "
+    exit 0
 }
 
 function _version(){
     echo "$FING_APPNAME $FING_VERSION"
+    exit 0
 }
 
-function main() {
-    local spath
-    for opt in "$@"; do
-        case "$opt" in
-            '-h'|'--help') _usage && exit 0 ;;
-            '--version')   _version && exit 0 ;;
-            '-g'|'--grep') 
-                if [[ -z $spath ]]; then
-                    shift 1; spath=$1
-                fi
-                _grep "$spath"; exit $? ;;
-            -*) 
-                echo "Error $opt is no such option"
-                echo "--> more info with: $FING_APPNAME --help"
-                exit 1
-                ;;
-            *)
-                if [[ ! -e $opt ]]; then
-                    echo "Error $opt is not found"
-                    exit 1
-                fi
-                spath=$opt
-                ;;
-        esac
-    done
+function _error_options() {
+    echo "Error \"$1\" is no such option"
+    echo "--> more info with: $FING_APPNAME --help"
+    exit 1
+}
 
-    _filefilter "$@"
-    exit $?
+function _options() {
+    while getopts ":vhgop:-:" opt; do
+        case "$opt" in
+            -)  # logn option
+                case "${OPTARG}" in
+                    help) _usage ;;
+                    version) _version ;;
+                    grep) GETOPTS_G=1 ;;
+                    *) _error_options "--$OPTARG" ;;
+                esac
+                ;;
+            h) _usage ;;
+            v) _version ;;
+            g) GETOPTS_G=1 ;;
+            *) _error_options "-$OPTARG" ;;
+        esac
+    done   
+
+    shift $((OPTIND - 1))
+    V_PATH=$1
+    if [[ ! (-z "$V_PATH" || -e "$V_PATH") ]]; then
+        echo "Error \"$V_PATH\" is not foud"
+        exit 1
+    fi
 }
 
 function _filefilter() {
@@ -185,6 +189,26 @@ function isText() {
     [[ ${#type} -ne 0 ]] && return 0
 
     return 1
+}
+
+function main() {
+    _options "$@"
+    if [[ "$GETOPTS_G" ]]; then
+        if [[ -d "$V_PATH" ]]; then
+            local dirpath="$V_PATH"
+            local grep_options=""
+        fi
+        if [[ -f "$V_PATH" ]]; then
+            f="$(basename $V_PATH)"
+            local dirpath=$(dirname $V_PATH)
+            local grep_options="$FING_GREP_OPTIONS $f"
+        fi
+        _grep "$dirpath" "$grep_options"
+        exit $?
+    fi
+
+    _filefilter "$V_PATH"
+    exit $?
 }
 
 # main
