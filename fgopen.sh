@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
-FING_APPNAME="fing"
-FING_VERSION="0.4.0"
-FING_FZF_CMD="fzf-tmux"
-FING_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
-FING_FIND_PIPE_CMD="" #e.g. egrep \.go 
-FING_GREP_CMD="ag"
-FING_GREP_OPTIONS="--hidden --ignore .git/ . "
-FING_CONFIRM_OPEN_FILE_CNT=5
+FGO_APPNAME="fgo"
+FGO_VERSION="0.4.0"
+FGO_FZF_CMD="fzf-tmux"
+FGO_FIND_OPTIONS="-type d -name .git -prune -o -type f -print"
+FGO_FIND_PIPE_CMD="" #e.g. egrep \.go 
+FGO_GREP_CMD="ag"
+FGO_GREP_OPTIONS="--hidden --ignore .git/ . "
+FGO_CONFIRM_OPEN_FILE_CNT=5
 
 
 function _usage() {
-echo "Usage: $FING_APPNAME [--version] [--help] [options] [path]
-Version: $FING_VERSION
+echo "Usage: $FGO_APPNAME [--version] [--help] [options] [path]
+Version: $FGO_VERSION
 
 Options:
-    --grep, -g       Open in grep mode
-    --open, -o       Open in vim (no-text is open in related applications)
+    --grep, -g       grep mode
+    --batch, -b      batch mode 
 
 Keybind:
     ctrl+u           Page half Up
@@ -30,32 +30,32 @@ Keybind:
 }
 
 function _version(){
-    echo "$FING_APPNAME $FING_VERSION"
+    echo "$FGO_APPNAME $FGO_VERSION"
     exit 0
 }
 
 function _error_options() {
     echo "Error \"$1\" is no such option"
-    echo "--> more info with: $FING_APPNAME --help"
+    echo "--> more info with: $FGO_APPNAME --help"
     exit 1
 }
 
 function _options() {
-    while getopts ":vhgop:-:" opt; do
+    while getopts ":vhgb-:" opt; do
         case "$opt" in
             -)  # logn option
                 case "${OPTARG}" in
                     help) _usage ;;
                     version) _version ;;
                     grep) GETOPTS_G=1 ;;
-                    open) GETOPTS_O=1 ;;
+                    batch) GETOPTS_B=1 ;;
                     *) _error_options "--$OPTARG" ;;
                 esac
                 ;;
             h) _usage ;;
             v) _version ;;
             g) GETOPTS_G=1 ;;
-            o) GETOPTS_O=1 ;;
+            b) GETOPTS_B=1 ;;
             *) _error_options "-$OPTARG" ;;
         esac
     done   
@@ -69,7 +69,7 @@ function _options() {
 }
 
 function _filefilter() {
-    [[ ! -z "$FING_FIND_PIPE_CMD" ]] && FING_FIND_PIPE_CMD="| $FING_FIND_PIPE_CMD"
+    [[ ! -z "$FGO_FIND_PIPE_CMD" ]] && FGO_FIND_PIPE_CMD="| $FGO_FIND_PIPE_CMD"
 
     local spath=${1:-$PWD}
     if [[ -f $spath ]]; then
@@ -79,9 +79,9 @@ function _filefilter() {
     fi
 
     local select
-    IFS=$'\n' select=($(eval find $spath $FING_FIND_OPTIONS $FING_FIND_PIPE_CMD \
+    IFS=$'\n' select=($(eval find $spath $FGO_FIND_OPTIONS $FGO_FIND_PIPE_CMD \
         | sed -e "s@$spath/@@" \
-        | $FING_FZF_CMD --multi --cycle \
+        | $FGO_FZF_CMD --multi --cycle \
         --preview "less -R $spath/{}" \
         --bind=ctrl-a:select-all,ctrl-a:toggle-all,ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
         --expect=enter,ctrl-f \
@@ -109,7 +109,7 @@ function _fileaction() {
             [[ -z ${files[@]} ]] && return
 
             local _open_file_cnt=$((${#select[@]}-1))
-            if [[ $_open_file_cnt -gt $FING_CONFIRM_OPEN_FILE_CNT && $GETOPTS_O ]]; then
+            if [[ $_open_file_cnt -gt $FGO_CONFIRM_OPEN_FILE_CNT && ! $GETOPTS_B ]]; then
                 echo -n "Really open $_open_file_cnt files? [Y/n]: "
                 read ans
                 case $ans in
@@ -120,7 +120,7 @@ function _fileaction() {
 
             declare -a vimfiles
             declare -a etcfiles
-            [[ "$GETOPTS_O" ]] && echo "Open the following file..."
+            [[ ! "$GETOPTS_B" ]] && echo "Open the following file..."
 
             for f in $files; do
                 echo "$spath/$f"
@@ -129,7 +129,7 @@ function _fileaction() {
                 [[ $retval -eq 0 ]] && vimfiles+=($spath/${f}) || etcfiles+=($spath/${f})
             done
 
-            if [[ "$GETOPTS_O" ]]; then
+            if [[ ! "$GETOPTS_B" ]]; then
                 [[ $((${#etcfiles[@]})) -ge 1 ]] && open ${etcfiles[@]}
                 [[ $((${#vimfiles[@]})) -ge 1 ]] && vim ${vimfiles[@]}
             fi
@@ -147,7 +147,7 @@ function _fileaction() {
             local _grep_options
             if [[ $scnt -gt 1 ]]; then
                 local ag_gop=$(echo "'${_target_files[@]:0:((${#_target_files[@]}-1))}'" | sed -e 's/ //g')
-                _grep_options="-G $ag_gop $FING_GREP_OPTIONS"
+                _grep_options="-G $ag_gop $FGO_GREP_OPTIONS"
             fi
 
             _grep "$spath" $_grep_options
@@ -161,12 +161,12 @@ function _fileaction() {
 
 function _grep() {
     local spath=${1:-$PWD}
-    local _grep_options=${2:-$FING_GREP_OPTIONS $f}
+    local _grep_options=${2:-$FGO_GREP_OPTIONS $f}
 
     (
         cd $spath
-        local line=$(eval $FING_GREP_CMD $_grep_options \
-            | $FING_FZF_CMD --tac \
+        local line=$(eval $FGO_GREP_CMD $_grep_options \
+            | $FGO_FZF_CMD --tac \
                 --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-y:yank \
                 --expect=ctrl-f)
         [[ -z $line ]] && return
@@ -181,7 +181,7 @@ function _grep() {
             file=$f
         fi
         
-        if [[ "$GETOPTS_O" ]]; then
+        if [[ ! "$GETOPTS_B" ]]; then
             vim -c $num $spath/$file
         else
             echo $line
@@ -210,7 +210,7 @@ function main() {
         if [[ -f "$V_PATH" ]]; then
             f="$(basename $V_PATH)"
             local dirpath=$(dirname $V_PATH)
-            local grep_options="$FING_GREP_OPTIONS $f"
+            local grep_options="$FGO_GREP_OPTIONS $f"
         fi
         _grep "$dirpath" "$grep_options"
         exit $?
