@@ -1,25 +1,26 @@
-# findgrep
+# fgopen
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![OS macOS](https://img.shields.io/badge/OS-macOS-blue.svg)](OS)  
-"findgrep" is a cli tool that uses find, grep(ag), fzf to quickly locate files.
+"fgopen" is a cli tool that uses find, grep(ag), fzf to open locate files quickly.
 
 
 ## Installation
 ```
-$ git clone https://github.com/humangas/findgrep.git
-$ cd findgrep
+$ git clone https://github.com/humangas/fgopen.git
+$ cd fgopen
 $ make install
 ```
 
 
 ## Usage
 ```
-$ fing --help
-Usage: fing [--version] [--help] [options] [path]
-Version: 0.2.1
+$ fgo --help
+Usage: fgo [--version] [--help] [options] [path]
+Version: 0.4.0
 
 Options:
-    --grep, -g       Open in grep mode
+    --grep, -g       grep mode
+    --batch, -b      batch mode 
 
 Keybind:
     ctrl+u           Page half Up
