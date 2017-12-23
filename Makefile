@@ -15,12 +15,13 @@ help:
 	@echo " - update:    After git pull, execute the install command."
 	@echo ""
 
-install:
+install: 
 	rm -rf $(FING_INSTALLPATH)/$(FING_CMDNAME)
 	cp $(PWD)/fgopen.sh $(FING_INSTALLPATH)/$(FING_CMDNAME)
 	chmod +x $(FING_INSTALLPATH)/$(FING_CMDNAME)
 	@echo ""
 	@echo "Install Completion. Usage: $(FING_CMDNAME) --help"
+	@echo "Please install dependency software. See also: README.md"
 
 update:
 	git pull origin master
