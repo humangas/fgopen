@@ -1,5 +1,5 @@
 FING_CMDNAME := fgo
-FING_INSTALLPATH := ~/bin
+FING_INSTALLPATH := /usr/local/bin
 
 .DEFAULT_GOAL := help
 
