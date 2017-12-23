@@ -1,7 +1,7 @@
 # fgopen
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![OS macOS](https://img.shields.io/badge/OS-macOS-blue.svg)](OS)  
-"fgopen" is a cli tool that uses find, grep(ag), fzf to open locate files quickly.
+"fgopen" is a cli tool that uses find, [ag(grep)](https://github.com/ggreer/the_silver_searcher#macos), [fzf](https://github.com/junegunn/fzf#using-homebrew) to open locate files quickly.
 
 
 ## Installation
