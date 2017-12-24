@@ -7,7 +7,9 @@
 ## Installation
 ```
 $ brew install --HEAD humangas/apps/fgopen
+```
 OR
+```
 $ git clone https://github.com/humangas/fgopen.git
 $ cd fgopen
 $ make install
